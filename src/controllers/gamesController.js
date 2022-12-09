@@ -1,12 +1,20 @@
 import { connection } from "../database/db.js";
 
 export async function getGames(req, res) {
-
+    const {name} = req.query
+    console.log(name)
     try {
-        const games = await connection.query("SELECT * FROM games");
-        res.send(games.rows);
+        if (!name) {
+            const games = await connection.query(`SELECT * FROM games `);
+            res.send(games.rows);
+        }else{
+            const games = await connection.query(`SELECT * FROM games WHERE  name ILIKE '${name}%' `);
+            res.send(games.rows);
+        }
+        
     } catch (error) {
-
+        console.log(error)
+        res.sendStatus(500)
     }
 };
 
