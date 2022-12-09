@@ -5,10 +5,10 @@ export async function getGames(req, res) {
     console.log(name)
     try {
         if (!name) {
-            const games = await connection.query(`SELECT * FROM games `);
+            const games = await connection.query(`SELECT games.*, categories.name AS "categoryName" FROM games JOIN categories ON  categories.id = "categoryId" `);
             res.send(games.rows);
         }else{
-            const games = await connection.query(`SELECT * FROM games WHERE  name ILIKE '${name}%' `);
+            const games = await connection.query(`SELECT games.*,categories.name AS "categoryName" FROM games WHERE  name ILIKE '${name}% ' JOIN categories ON categories.id = "categoriesId" `);
             res.send(games.rows);
         }
         
