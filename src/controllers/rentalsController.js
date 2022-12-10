@@ -1,6 +1,7 @@
 import { connection } from "../database/db.js";
 import { day } from "../server.js";
 import dayjs from 'dayjs';
+
 export async function getRentals(req, res) {
     const { customerId, gameId } = req.query
     const rentalsQuery = `
@@ -25,7 +26,6 @@ export async function getRentals(req, res) {
             res.send(rentals.rows);
         } else if (customerId && gameId) {
             const rentals = await connection.query(`${rentalsQuery} WHERE "customerId" =  $1 ,"gameId"=$2 `, [customerId, gameId])
-            
             res.send(rentals.rows);
         } else if (customerId) {
             const rentals = await connection.query(`${rentalsQuery} WHERE "customerId"=$1`, [customerId])
@@ -35,7 +35,6 @@ export async function getRentals(req, res) {
             
             res.send(rentals.rows);
         }
-
 
     } catch (error) {
         console.log(error)

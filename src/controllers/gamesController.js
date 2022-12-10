@@ -2,7 +2,6 @@ import { connection } from "../database/db.js";
 
 export async function getGames(req, res) {
     const {name} = req.query
-    console.log(name)
     try {
         if (!name) {
             const games = await connection.query(`SELECT games.*, categories.name AS "categoryName" FROM games JOIN categories ON  categories.id = "categoryId" `);
