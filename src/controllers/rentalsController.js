@@ -49,7 +49,7 @@ export async function insertRental(req, res) {
         const game = await connection.query('SELECT "pricePerDay" FROM games WHERE id=$1', [gameId])
 
         const price = Number(game.rows[0].pricePerDay) * Number(daysRented);
-        //console.log(price)
+        console.log(price)
         const rentals = await connection.query('INSERT INTO rentals ("customerId","gameId","rentDate","daysRented","returnDate","originalPrice","delayFee") VALUES ($1,$2,$3,$4,$5,$6,$7)', [customerId, gameId, day, daysRented, null, price, null])
 
         res.sendStatus(201);
@@ -64,8 +64,14 @@ export async function returnRental(req, res) {
     const { id } = req.params;
     let fee;
     try {
-        const rental = await connection.query('SELECT  "rentDate","daysRented" ,"gameId" FROM rentals WHERE id=$1  ', [id])
-
+        const rental = await connection.query('SELECT  "rentDate","daysRented" ,"gameId" ,"returnDate" FROM rentals WHERE id=$1  ', [id])
+        if (rental.length === 0 ) {
+            res.sendStatus(404)
+            return
+        }else if(rental.row[0].returnDate !== null){
+            res.sendStatus(400)
+            return
+        }
         console.log(rental.rows[0])
         let { rentDate } = rental.rows[0]
         rentDate = dayjs(rentDate).format("MM-DD").split("-")
@@ -104,7 +110,9 @@ export async function deleteRental(req, res) {
     const { id } = req.params;
     try {
         const rent = await connection.query('SELECT  "returnDate"  FROM rentals WHERE id=$1 ', [id])
-
+        if (rent.length === 0 ) {
+            res.sendStatus(404)
+        }
 
         if (rent.rows[0].returnDate !== null) {
             const del = await connection.query("DELETE FROM rentals WHERE id=$1", [id])

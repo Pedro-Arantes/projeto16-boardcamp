@@ -16,10 +16,18 @@ export async function getCustomers(req, res) {
 
 export async function getCustomer(req, res) {
     const { id } = req.params
+    const {cpf} = req.query
     try {
-        const customers = await connection.query("SELECT * FROM customers WHERE id=$1", [id])
-        console.log(customers.rows)
-        res.send(customers.rows[0]);
+        if (!cpf) {
+            const customers = await connection.query("SELECT * FROM customers WHERE id=$1", [id])
+            console.log(customers.rows)
+            res.send(customers.rows[0]);
+        }else{
+            const customers = await connection.query(`SELECT * FROM customers WHERE  ILIKE cpf= '${cpf}%'`)
+            console.log(customers.rows)
+            res.send(customers.rows[0]);
+        }
+        
 
     } catch (error) {
         console.log(error)

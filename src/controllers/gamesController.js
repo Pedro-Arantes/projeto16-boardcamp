@@ -1,13 +1,13 @@
 import { connection } from "../database/db.js";
 
 export async function getGames(req, res) {
-    const {name} = req.query
+    const nameQ = req.query.name
     try {
-        if (!name) {
+        if (!nameQ) {
             const games = await connection.query(`SELECT games.*, categories.name AS "categoryName" FROM games JOIN categories ON  categories.id = "categoryId" `);
             res.send(games.rows);
         }else{
-            const games = await connection.query(`SELECT games.*,categories.name AS "categoryName" FROM games WHERE  name ILIKE '${name}% ' JOIN categories ON categories.id = "categoriesId" `);
+            const games = await connection.query(`SELECT games.*,categories.name AS "categoryName" FROM games  JOIN categories ON categories.id = "categoryId" WHERE  (games.name) ILIKE '${nameQ}%'  ;`);
             res.send(games.rows);
         }
         
