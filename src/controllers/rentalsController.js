@@ -3,71 +3,37 @@ import { day } from "../server.js";
 import dayjs from 'dayjs';
 export async function getRentals(req, res) {
     const { customerId, gameId } = req.query
+    const rentalsQuery = `
+    SELECT rentals.*,
+    row_to_json(customers.*)AS customer, 
+    json_build_object(
+        'id',games.id,
+        'name',games.name,
+        'categoryId',games."categoryId",
+        'categoryName',categories.name
+        )AS game 
+    FROM rentals  
+    JOIN customers  
+    ON customers.id ="customerId"  
+    JOIN games 
+    ON games.id = "gameId" 
+    JOIN categories 
+    ON categories.id = games."categoryId" `;
     try {
         if (!customerId && !gameId) {
-            const rentals = await connection.query('SELECT rentals.*,customers.name,games.name AS gamename,games."categoryId",categories.name AS "categoryName " FROM rentals  JOIN customers  ON customers.id ="customerId"  JOIN games ON games.id = "gameId" JOIN categories ON categories.id = games."categoryId" ',)
-            //console.log(rentals.rows)
-            res.send(rentals.rows.map((item) => {
-                const { id, customerId, gameId, rentDate, daysRented, returnDate, originalPrice, delayFee, name, gamename, categoryName } = item
-                const obj = {
-                    id,
-                    customerId,
-                    gameId,
-                    rentDate, daysRented, returnDate, originalPrice, delayFee,
-                    customer: { name },
-                    game: { name: gamename, categoryName }
-                }
-                return obj
-            }
-            ));
+            const rentals = await connection.query(`${rentalsQuery}`)
+            res.send(rentals.rows);
         } else if (customerId && gameId) {
-            const rentals = await connection.query('SELECT rentals.*,customers.name,games.name AS gamename,games."categoryId",categories.name AS "categoryName " FROM rentals WHERE "customerId" =  $1 ,"gameId"=$2 JOIN customers  ON customers.id ="customerId"  JOIN games ON games.id = "gameId" JOIN categories ON categories.id = games."categoryId" ', [customerId, gameId])
-            console.log(rentals.rows)
-            res.send(rentals.rows.map((item, i) => {
-                const { id, customerId, gameId, rentDate, daysRented, returnDate, originalPrice, delayFee, name, gamename, categoryName } = item
-                const obj = {
-                    id,
-                    customerId,
-                    gameId,
-                    rentDate, daysRented, returnDate, originalPrice, delayFee,
-                    customer: { name },
-                    game: { name: gamename, categoryName }
-                }
-                return obj
-            }
-            ));
+            const rentals = await connection.query(`${rentalsQuery} WHERE "customerId" =  $1 ,"gameId"=$2 `, [customerId, gameId])
+            
+            res.send(rentals.rows);
         } else if (customerId) {
-            const rentals = await connection.query('SELECT rentals.*,customers.name,games.name AS gamename,games."categoryId",categories.name AS "categoryName " FROM rentals WHERE "customerId" =  $1  JOIN customers  ON customers.id ="customerId"  JOIN games ON games.id = "gameId" JOIN categories ON categories.id = games."categoryId" ', [customerId])
-            console.log(rentals.rows)
-            res.send(rentals.rows.map((item, i) => {
-                const { id, customerId, gameId, rentDate, daysRented, returnDate, originalPrice, delayFee, name, gamename, categoryName } = item
-                const obj = {
-                    id,
-                    customerId,
-                    gameId,
-                    rentDate, daysRented, returnDate, originalPrice, delayFee,
-                    customer: { name },
-                    game: { name: gamename, categoryName }
-                }
-                return obj
-            }
-            ));
+            const rentals = await connection.query(`${rentalsQuery} WHERE "customerId"=$1`, [customerId])
+            res.send(rentals.rows);
         } else if (gameId) {
-            const rentals = await connection.query('SELECT rentals.*,customers.name,games.name AS gamename,games."categoryId",categories.name AS "categoryName " FROM rentals WHERE "customerId" =  $1  JOIN customers  ON customers.id ="customerId"  JOIN games ON games.id = "gameId" JOIN categories ON categories.id = games."categoryId" ', [customerId])
-            console.log(rentals.rows)
-            res.send(rentals.rows.map((item, i) => {
-                const { id, customerId, gameId, rentDate, daysRented, returnDate, originalPrice, delayFee, name, gamename, categoryName } = item
-                const obj = {
-                    id,
-                    customerId,
-                    gameId,
-                    rentDate, daysRented, returnDate, originalPrice, delayFee,
-                    customer: { name },
-                    game: { name: gamename, categoryName }
-                }
-                return obj
-            }
-            ));
+            const rentals = await connection.query(`${rentalsQuery} WHERE "gameId"=$1`, [customerId])
+            
+            res.send(rentals.rows);
         }
 
 
