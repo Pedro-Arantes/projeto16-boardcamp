@@ -25,13 +25,13 @@ export async function getRentals(req, res) {
             const rentals = await connection.query(`${rentalsQuery}`)
             res.send(rentals.rows);
         } else if (customerId && gameId) {
-            const rentals = await connection.query(`${rentalsQuery} WHERE "customerId" =  $1 ,"gameId"=$2 `, [customerId, gameId])
+            const rentals = await connection.query(`${rentalsQuery} WHERE "customerId" =  $1 AND "gameId"=$2 `, [customerId, gameId])
             res.send(rentals.rows);
-        } else if (customerId) {
+        } else if (customerId && !gameId) {
             const rentals = await connection.query(`${rentalsQuery} WHERE "customerId"=$1`, [customerId])
             res.send(rentals.rows);
-        } else if (gameId) {
-            const rentals = await connection.query(`${rentalsQuery} WHERE "gameId"=$1`, [customerId])
+        } else if (gameId && !customerId) {
+            const rentals = await connection.query(`${rentalsQuery} WHERE "gameId"=$1`, [gameId])
             
             res.send(rentals.rows);
         }
