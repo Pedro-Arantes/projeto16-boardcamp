@@ -6,7 +6,7 @@ export async function getRentals(req, res) {
     const { customerId, gameId } = req.query
     const rentalsQuery = `
     SELECT rentals.*,
-    json_buld_object('id',customers.id,'name',customers.name)AS customer, 
+    json_build_object('id',customers.id,'name',customers.name)AS customer, 
     json_build_object(
         'id',games.id,
         'name',games.name,
@@ -44,7 +44,7 @@ export async function getRentals(req, res) {
 
 export async function insertRental(req, res) {
     const { customerId, gameId, daysRented } = req.body;
-
+    
     try {
         const game = await connection.query('SELECT "pricePerDay" FROM games WHERE id=$1', [gameId])
 
@@ -61,43 +61,10 @@ export async function insertRental(req, res) {
 };
 
 export async function returnRental(req, res) {
-    const { id } = req.params;
-    let fee;
+    const { id,feeDelay } = req.info;
+    
     try {
-        const rental = await connection.query('SELECT  "rentDate","daysRented" ,"gameId" ,"returnDate" FROM rentals WHERE id=$1  ', [id])
-        if (rental.length === 0 ) {
-            res.sendStatus(404)
-            return
-        }else if(rental.row[0].returnDate !== null){
-            res.sendStatus(400)
-            return
-        }
-        console.log(rental.rows[0])
-        let { rentDate } = rental.rows[0]
-        rentDate = dayjs(rentDate).format("MM-DD").split("-")
-        const { daysRented, gameId } = rental.rows[0]
-
-        const game = await connection.query('SELECT "pricePerDay" FROM games WHERE id=$1', [gameId])
-        //console.log(game)
-        const { pricePerDay } = game.rows[0]
-        //console.log( rentDate[0] )
-        const dayArray = day.split("-")
-        if (Number(dayArray[1]) - Number(rentDate[0]) === 0) {
-            const useDays = Number(dayArray[2]) - Number(rentDate[1])
-            if (useDays <= Number(daysRented)) {
-                fee = null
-            } else {
-                const overDays = useDays - Number(daysRented)
-                fee = overDays * pricePerDay;
-            }
-        }
-
-
-
-
-        const rentals = await connection.query('UPDATE rentals SET "returnDate"=$1 ,"delayFee"=$2 WHERE id=$3  ', [day, fee, id])
-        console.log(rentals)
-        console.log(fee)
+        const rentals = await connection.query('UPDATE rentals SET "returnDate"=$1 ,"delayFee"=$2 WHERE id=$3  ', [day, feeDelay, id])
         res.sendStatus(201);
         return
     } catch (error) {

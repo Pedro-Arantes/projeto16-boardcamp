@@ -11,7 +11,7 @@ export async function rentalSchemaMd(req, res, next) {
     }
     const rentals1= await connection.query("SELECT * FROM customers WHERE customers.id=$1",[customerId]);
     const rentals2 = await connection.query("SELECT * FROM games WHERE games.id=$1",[gameId]);
-    const rentGames = await connection.query('SELECT * FROM rentals WHERE "gamesId"=$1',[gameId]);
+    const rentGames = await connection.query('SELECT * FROM rentals WHERE "gameId"=$1',[gameId]);
     
     const {stockTotal} = rentals2.rows[0]
     if (rentGames.length >= stockTotal) {
