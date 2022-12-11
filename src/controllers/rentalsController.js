@@ -6,7 +6,7 @@ export async function getRentals(req, res) {
     const { customerId, gameId } = req.query
     const rentalsQuery = `
     SELECT rentals.*,
-    row_to_json(customers.*)AS customer, 
+    json_buld_object('id',customers.id,'name',customers.name)AS customer, 
     json_build_object(
         'id',games.id,
         'name',games.name,
