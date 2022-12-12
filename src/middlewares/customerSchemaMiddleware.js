@@ -1,4 +1,5 @@
 import { customerSchema } from "../models/customerModel.js";
+import {connection } from "../database/db.js";
 
 export async function customerSchemaMd(req, res, next) {
     const {cpf}=req.body
